@@ -1,18 +1,27 @@
 var express = require('express');
-var burgers = require('burger.js');
+var router = express.Router();
 
-var PORT = process.env.PORT || 8080;
+var burgers = require('../models/burger.js');
 
-var app = express();
-
-app.get('/', function(req,res){
-
+router.get('/', function(req,res){
+    burgers.selectAll(function(result){
+        var handlebarObjs = {
+            burgers: result
+        }
+        res.render('index', handlebarObjs);
+    })
 });
 
-
-
-app.listen(PORT, function(){
-    console.log('Server listening on http://localhost:' + PORT);
+router.post('/api/burgers', function(req, res){
+    burgers.insertOne("burger_name", req.body.burger_name, function(result) {
+        res.json({ id: result.id });
+    });
 });
 
-module.exports = app;
+router.put('/api/burgers/:id', function(req, res){
+    burgers.updateOne(req.body, req.params.id, function(result){
+        res.json({ id: result.id });
+    })
+});
+
+module.exports = router;
